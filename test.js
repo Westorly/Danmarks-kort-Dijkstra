@@ -1,13 +1,18 @@
+//De valgte start- og slutby. Dette er null fra start af da der ikke er valgt noget
 let startby = null;
 let slutby = null;
-let vælgerStartby = false;
+
+//Bollean om vi er i gang med at vælge start eller slutby
+let vælgerStartby = false; 
 let vælgerSlutby = false;
 
-
-
+//radius for byerne
 const radius = 68;
+
+//skalering af kortet
 const scale = 1.09;
 
+//Skabelon af by
 class By{
   constructor(navn, x, y){
     this.navn = navn;
@@ -16,11 +21,10 @@ class By{
   }
 
   draw(){
-
-
     stroke(0)
     strokeWeight(3)
 
+    //Hvis byen er startby er den grøn og hvis den er slutby er den rød
     if (this.navn === startby){
       fill('#32a852')
     }
@@ -62,7 +66,6 @@ class Vej{
     } else{
       stroke('black')
     }
-
     
     strokeWeight(5);
     line(this.by1.x, this.by1.y, this.by2.x, this.by2.y);
@@ -70,31 +73,25 @@ class Vej{
     const midX = (this.by1.x + this.by2.x) / 2;
     const midY = (this.by1.y + this.by2.y) / 2;
 
-    strokeWeight(0)
-    stroke(255)
-    fill(255)
+    strokeWeight(0);
+    stroke(255);
+    fill(255);
     textSize(30);
     textAlign(CENTER, CENTER);
-    text(this.værdi, midX, midY)
-
-    
-
-       
-
+    text(this.værdi, midX, midY);
   }
 
   
 
 }
 
-//Byer
+//Byer eller vertices
 const Aalborg = new By("Aalborg", 550, 80);
 const Thisted = new By("Thisted", 210, 120);
 const Randers = new By("Randers", 560, 350);
 const Aarhus = new By("Aarhus", 600, 500);
 const Ebeltoft = new By("Ebeltoft", 740, 480);
 const Herning = new By("Herning", 280, 500);
-
 const Esbjerg = new By("Esbjerg", 160, 780);
 const Vejle = new By("Vejle", 430, 690);
 const Odense = new By("Odense", 650, 840);
@@ -109,7 +106,7 @@ const byer = [
   SjællandsOdde, Slagelse, Roskilde, København
 ];
 
-//Stier
+//By veje eller edges
 const veje = [
   //Fra Aalborg
   new Vej(82, Aalborg, Thisted),
@@ -161,9 +158,7 @@ function setup() {
 
   
   for (const vej of veje){
-    vej.draw();
-    
-    
+    vej.draw();    
   }
   
   for (const by of byer){
@@ -171,9 +166,10 @@ function setup() {
   }
   
   
-  //Knapper
+  //Knapper for brugeren
   knapper()
 
+  //Tekst for valgte start- og slutby
   tekst()
   
 
@@ -232,6 +228,7 @@ function knapper() {
 
 
 function mousePressed() {
+  
   if (vælgerStartby) {
     for (const by of byer) {
       if (dist(mouseX, mouseY, by.x, by.y) < radius / 2) {
@@ -282,7 +279,7 @@ function tekst() {
 
 let sti = []
 
-function bruteForce(){
+function bruteForce(startby, slutby){
   if (!startby || !slutby) {
     console.log("Startby og Slutby skal vælges først!");
     return;
@@ -293,30 +290,27 @@ function bruteForce(){
   let besøgte =[startby];
 
   while (nuby !== slutby){
-    //let muligeveje = 
-
+    
     
   }
 }
 
-function findVejeMedBy(by, veje, sti){
-  //by=København er en string og veje er en liste over alle veje
-  console.log(veje)
-  let l = []
+function findVejeMedBy(by, veje){
+  //by er en string, veje er en liste over alle veje
+  let muligeveje = []
   for (let index = 0; index < veje.length; index++) {
     const by1navn = veje[index].by1.navn;
     const by2navn = veje[index].by2.navn;
     console.log(by1navn, by2navn)
 
     if(by1navn === by || by2navn === by){
-      l.push(veje[index])
-      sti.push(veje[index])
+      muligeveje.push(veje[index])
     }
-
-    
+      
   }
-
-  return l;
+  //Vælger en tilfældig vej i listen muligeveje og sætter den i stien.
+  sti.push(muligeveje[Math.floor(Math.random() * muligeveje.length)]);
+  return muligeveje;  
 }
 
-console.log(findVejeMedBy("København", veje))
+console.log(findVejeMedBy('Herning', veje))
