@@ -1,6 +1,6 @@
 //De valgte start- og slutby. Dette er null fra start af da der ikke er valgt noget
-let startby = null;
-let slutby = null;
+let startby = undefined;
+let slutby = undefined;
 
 //Bollean om vi er i gang med at vælge start eller slutby
 let vælgerStartby = false; 
@@ -25,10 +25,10 @@ class By{
     strokeWeight(3)
 
     //Hvis byen er startby er den grøn og hvis den er slutby er den rød
-    if (this.navn === startby){
+    if (this.navn === startby?.navn){
       fill('#32a852')
     }
-    else if(this.navn === slutby){
+    else if(this.navn === slutby?.navn){
       fill('#a83232')
     }
     else{
@@ -216,11 +216,11 @@ function knapper() {
     setup();
   });
 
-  let brute = createButton('Brute Force');
-  brute.position(knapPositionX, knapPositionY + 300);
-  brute.class('button-style')
-  brute.mousePressed(() => {
-    bruteForce();
+  let dijkstra = createButton('Dijkstra');
+  dijkstra.position(knapPositionX, knapPositionY + 300);
+  dijkstra.class('button-style')
+  dijkstra.mousePressed(() => {
+    dijkstra1(startby, slutby);
   });
   
 }
@@ -232,7 +232,7 @@ function mousePressed() {
   if (vælgerStartby) {
     for (const by of byer) {
       if (dist(mouseX, mouseY, by.x, by.y) < radius / 2) {
-        startby = by.navn;
+        startby = by;
         vælgerStartby = false;
 
         setup(); 
@@ -244,7 +244,7 @@ function mousePressed() {
   if (vælgerSlutby) {
     for (const by of byer) {
       if (dist(mouseX, mouseY, by.x, by.y) < radius / 2) {
-        slutby = by.navn;
+        slutby = by;
         vælgerSlutby = false; 
         setup();
         break;
@@ -262,16 +262,16 @@ function tekst() {
   textSize(30);
   textAlign(LEFT);
   
-  if (startby == null){
+  if (startby == undefined){
     text("Startby: Ikke valgt", tekstPositionX, tekstPositionY) 
   } else{
-    text("Startby: "+ startby, tekstPositionX, tekstPositionY)
+    text("Startby: "+ startby.navn, tekstPositionX, tekstPositionY)
   }
 
-  if (slutby == null){
+  if (slutby == undefined){
     text("Slutby: Ikke valgt", tekstPositionX, tekstPositionY + 50) 
   } else{
-    text("Slutby: "+ slutby, tekstPositionX, tekstPositionY + 50)
+    text("Slutby: "+ slutby.navn, tekstPositionX, tekstPositionY + 50)
   }
 
 }
@@ -279,38 +279,55 @@ function tekst() {
 
 let sti = []
 
-function bruteForce(startby, slutby){
+function dijkstra1(startby, slutby){
   if (!startby || !slutby) {
     console.log("Startby og Slutby skal vælges først!");
     return;
   }
 
-  sti = []
   let nuby = startby;
-  let besøgte =[startby];
+  let besøgte = [startby];
+  let ikke_besøgte = byer
 
-  while (nuby !== slutby){
-    
-    
+  ikke_besøgte.splice(ikke_besøgte.indexOf(startby), 1) 
+
+  let muligeVeje = findMuligeVeje(veje, besøgte)
+  
+  let kortesteVej = undefined
+  let minVægt = Number.MAX_VALUE
+  
+  for(let i = 0; i < muligeVeje.length; i++) {
+    if(muligeVeje[i].værdi < minVægt) {
+      kortesteVej = muligeVeje[i]
+      minVægt = muligeVeje[i].værdi
+    }
   }
+  console.log(kortesteVej)
+  if(besøgte.includes(kortesteVej.by1)) {
+    besøgte.push(kortesteVej.by2)
+  } else {
+    besøgte.push(kortesteVej.by1)
+  }
+
+  console.log(besøgte)
+
+  //while (nuby !== slutby){
+  //}
 }
 
-function findVejeMedBy(by, veje){
+function findMuligeVeje(veje, besøgte) {
   //by er en string, veje er en liste over alle veje
   let muligeveje = []
   for (let index = 0; index < veje.length; index++) {
-    const by1navn = veje[index].by1.navn;
-    const by2navn = veje[index].by2.navn;
-    console.log(by1navn, by2navn)
-
-    if(by1navn === by || by2navn === by){
-      muligeveje.push(veje[index])
-    }
-      
+    const by1 = veje[index].by1.navn;
+    const by2 = veje[index].by2.navn;
+    for(let i = 0; i < besøgte.length; i++) {
+      if(by1 === besøgte[i].navn || by2 === besøgte[i].navn) {
+        muligeveje.push(veje[index])
+      }
+    } 
   }
   //Vælger en tilfældig vej i listen muligeveje og sætter den i stien.
-  sti.push(muligeveje[Math.floor(Math.random() * muligeveje.length)]);
+  //sti.push(muligeveje[Math.floor(Math.random() * muligeveje.length)]);
   return muligeveje;  
 }
-
-console.log(findVejeMedBy('Herning', veje))
