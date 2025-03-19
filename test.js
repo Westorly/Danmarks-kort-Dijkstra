@@ -1,23 +1,24 @@
-//De valgte start- og slutby. Dette er null fra start af da der ikke er valgt noget
+// De valgte start- og slutby. Dette er undefined fra start af da der ikke er valgt noget
 let startby = undefined;
 let slutby = undefined;
 
-//Bollean om vi er i gang med at vælge start eller slutby
+// Bollean om vi er i gang med at vælge start- eller slutby
 let vælgerStartby = false;
 let vælgerSlutby = false;
 
+// Afstand til slutbyen
 let afstandTilSlut = undefined;
 
+// Liste der holder styr på den korteste sti mellem start- og slutby
 let sti = [];
 
-
-//radius for byerne
+// Radius for byernes cirkler
 const radius = 68;
 
-//skalering af kortet
+// Skalering af kortet
 const scale = 1.09;
 
-//Skabelon af by
+// Klasse der repræsenterer en by
 class By {
   constructor(navn, x, y) {
     this.navn = navn;
@@ -29,7 +30,7 @@ class By {
     stroke(0);
     strokeWeight(3);
 
-    //Hvis byen er startby er den grøn og hvis den er slutby er den rød
+    // Hvis byen er startby er den grøn, hvis den er slutby er den rød, ellers rød
     if (this.navn === startby?.navn) {
       fill("#32a852");
     } else if (this.navn === slutby?.navn) {
@@ -38,9 +39,10 @@ class By {
       fill("white");
     }
 
+    // Tegner byens cirkel
     circle(this.x, this.y, radius);
 
-    //Navneskilt
+    // Navneskilt på byen
     fill(0);
     strokeWeight(0);
     textAlign(CENTER, CENTER);
@@ -49,14 +51,16 @@ class By {
   }
 }
 
+// Klasse der repræsenterer en vej mellem to byer
 class Vej {
   constructor(værdi, by1, by2) {
-    this.værdi = værdi;
+    this.værdi = værdi; // Tid mellem byer i minutter
     this.by1 = by1;
     this.by2 = by2;
   }
 
   draw() {
+    // Hvis vejen er en del af den korteste sti, farves den blå
     if (sti.includes(this)) {
       stroke("blue");
     } else {
@@ -66,6 +70,7 @@ class Vej {
     strokeWeight(5);
     line(this.by1.x, this.by1.y, this.by2.x, this.by2.y);
 
+    // Viser afstanden mellem byerne
     const midX = (this.by1.x + this.by2.x) / 2;
     const midY = (this.by1.y + this.by2.y) / 2;
 
@@ -78,7 +83,7 @@ class Vej {
   }
 }
 
-//Byer eller vertices
+// Instantiere byerne
 const Aalborg = new By("Aalborg", 550, 80);
 const Thisted = new By("Thisted", 210, 120);
 const Randers = new By("Randers", 560, 350);
@@ -93,6 +98,7 @@ const Slagelse = new By("Slagelse", 920, 840);
 const Roskilde = new By("Roskilde", 1090, 740);
 const København = new By("København", 1220, 710);
 
+// Byerne samlet i en liste
 const byer = [
   Aalborg,
   Thisted,
@@ -109,52 +115,55 @@ const byer = [
   København,
 ];
 
-//By veje eller edges
+// Liste over alle veje
 const veje = [
-  //Fra Aalborg
+  // Fra Aalborg
   new Vej(82, Aalborg, Thisted),
   new Vej(58, Aalborg, Randers),
   new Vej(110, Aalborg, Herning),
-  //Fra Thisted
+  // Fra Thisted
   new Vej(92, Thisted, Herning),
   new Vej(168, Thisted, Esbjerg),
 
-  //Fra Randers
+  // Fra Randers
   new Vej(67, Randers, Herning),
   new Vej(39, Randers, Aarhus),
   new Vej(55, Randers, Ebeltoft),
 
-  //Fra Aarhus
+  // Fra Aarhus
   new Vej(59, Aarhus, Vejle),
   new Vej(62, Aarhus, Herning),
   new Vej(68, Aarhus, SjællandsOdde),
 
-  //Fra Herning
+  // Fra Herning
   new Vej(78, Herning, Esbjerg),
   new Vej(46, Herning, Vejle),
 
-  //Fra Vejle
+  // Fra Vejle
   new Vej(65, Vejle, Esbjerg),
   new Vej(60, Vejle, Odense),
 
-  //Fra Slagelse
+  // Fra Slagelse
   new Vej(55, Slagelse, Odense),
   new Vej(57, Slagelse, Roskilde),
   new Vej(71, Slagelse, SjællandsOdde),
 
-  //Fra Roskilde
+  // Fra Roskilde
   new Vej(56, Roskilde, SjællandsOdde),
   new Vej(38, Roskilde, København),
 ];
 
+// Loader billedet af Danmark ind
 function preload() {
   kort = loadImage("images/kort.png");
 }
+
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   image(kort, 0, 0, kort.width * scale, kort.height * scale);
 
+  // Tegner alle veje og byer
   for (const vej of veje) {
     vej.draw();
   }
@@ -163,22 +172,22 @@ function setup() {
     by.draw();
   }
 
-  //Knapper for brugeren
+  // Opretter knapper for brugeren
   knapper();
 
-  //Tekst for valgte start- og slutby
-  
-  let rute = sti.reverse()
-  console.log(rute)
-  tekst(rute);
+  // Viser valgt startby, slutby og rute
+  tekst();
  
   
 }
 
+// Funktion der opretter knapper for brugeren
 function knapper() {
+  // Position for knapperne
   let knapPositionX = kort.width * scale + 40;
   let knapPositionY = 700;
 
+  // Vælge startby knap
   let startKnap = createButton("Vælg Startby");
   startKnap.position(knapPositionX, knapPositionY);
   startKnap.class("button-style");
@@ -188,6 +197,7 @@ function knapper() {
     sti = [];
   });
 
+  // Nulstil knap for startby
   let nulstilStart = createButton("Nulstil");
   nulstilStart.position(knapPositionX + 230, knapPositionY);
   nulstilStart.class("button-style");
@@ -196,6 +206,7 @@ function knapper() {
     setup();
   });
 
+  // Vælge slutby knap
   let slutKnap = createButton("Vælg Slutby");
   slutKnap.position(knapPositionX, knapPositionY + 70);
   slutKnap.class("button-style");
@@ -205,6 +216,7 @@ function knapper() {
     sti = [];
   });
 
+  // Nulstil knap for startby
   let nulstilSlut = createButton("Nulstil");
   nulstilSlut.position(knapPositionX + 230, knapPositionY + 70);
   nulstilSlut.class("button-style");
@@ -213,6 +225,7 @@ function knapper() {
     setup();
   });
 
+  // Dijkstra knap
   let dijkstra = createButton("Dijkstra");
   dijkstra.position(knapPositionX, knapPositionY + 140);
   dijkstra.class("button-style");
@@ -220,6 +233,7 @@ function knapper() {
     dijkstra1(startby, slutby);
   });
 
+  // Nulstil knap for Dijkstra
   let nulstilDijkstra = createButton("Nulstil");
   nulstilDijkstra.position(knapPositionX + 230, knapPositionY + 140);
   nulstilDijkstra.class("button-style");
@@ -231,6 +245,7 @@ function knapper() {
 
 }
 
+// Funktion der kaldes når musen klikkes
 function mousePressed() {
   if (vælgerStartby) {
     for (const by of byer) {
@@ -256,7 +271,9 @@ function mousePressed() {
   }
 }
 
-function tekst(rute) {
+// Funktion til at vise valgte byer og korteste rute
+function tekst() {
+  // Position for teksten
   let tekstPositionX = kort.width * scale + 40;
   let tekstPositionY = 40;
   textSize(30);
@@ -280,23 +297,28 @@ function tekst(rute) {
     text("Afstand: " + afstandTilSlut, tekstPositionX, tekstPositionY + 100);
   }
 
+  // Sørger for at ruten vises korrekt
   if (afstandTilSlut == undefined) {
     text("Rute: Vælg rute", tekstPositionX, tekstPositionY + 150);
   } else {
     text("Rute:", tekstPositionX, tekstPositionY + 150);
     let offset = 190;
-
-    for (let i = rute.length - 1; i >= 0; i--) {
-      let by1navn = rute[i].by1.navn;
-      let by2navn = i + 1 < rute.length ? rute[i + 1].by1.navn : rute[i].by2.navn;
-
-      text(by1navn + " -> " + by2navn, tekstPositionX, tekstPositionY + offset);
-
-      offset += 40; // Flytter teksten nedad for hver linje
+    
+    let byNavn = startby.navn;
+    
+    for (let i = sti.length - 1; i >= 0; i--) {
+      let næsteByNavn = (sti[i].by1.navn === byNavn) ? sti[i].by2.navn : sti[i].by1.navn;
+      
+      text(byNavn + " -> " + næsteByNavn + " (" + sti[i].værdi + ")", tekstPositionX, tekstPositionY + offset);  
+      
+      byNavn = næsteByNavn;
+      offset += 40;
     }
   }
 }
 
+
+// Implementering af Dijkstras algoritme
 function dijkstra1(startby, slutby) {
   if (!startby || !slutby) {
     console.log("Startby og Slutby skal vælges først!");
@@ -328,6 +350,7 @@ function dijkstra1(startby, slutby) {
       }
     }
 
+    // Opdaterer afstande til nabobyer
     let muligeVeje = findMuligeVeje(veje, nuværendeBy.navn);
     for (let vej of muligeVeje) {
       if (
@@ -348,6 +371,7 @@ function dijkstra1(startby, slutby) {
     // Tilføjer nuværendeBy til besøgte
     besøgte.push(nuværendeBy.navn);
   }
+  // Tegner den korteste vej
   tegnKortesteVej(afstande, startby, slutby);
 }
 // Finder alle mulige veje fra en by
@@ -364,20 +388,7 @@ function findMuligeVeje(veje, byNavn) {
   return muligeveje;
 }
 
-function tegnKortesteVej(afstande, startby, slutby) {
-  let nuværendeBy = slutby;
-  sti = [];
-  let muligeveje = [];
-  for (let index = 0; index < veje.length; index++) {
-    const by1 = veje[index].by1.navn;
-    const by2 = veje[index].by2.navn;
-    if (by1 === byNavn || by2 === byNavn) {
-      muligeveje.push(veje[index]);
-    }
-  }
-  return muligeveje;
-}
-
+// Funktion til at tegne den korteste vej fra Dijkstra
 function tegnKortesteVej(afstande, startby, slutby) {
   let nuværendeBy = slutby;
   sti = [];
