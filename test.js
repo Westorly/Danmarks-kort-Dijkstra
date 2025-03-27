@@ -309,7 +309,7 @@ function tekst() {
     for (let i = sti.length - 1; i >= 0; i--) {
       let næsteByNavn = (sti[i].by1.navn === byNavn) ? sti[i].by2.navn : sti[i].by1.navn;
       
-      text(byNavn + " -> " + næsteByNavn + " (" + sti[i].værdi + ")", tekstPositionX, tekstPositionY + offset);  
+      text(byNavn + " → " + næsteByNavn + " (" + sti[i].værdi + ")", tekstPositionX, tekstPositionY + offset);  
       
       byNavn = næsteByNavn;
       offset += 40;
